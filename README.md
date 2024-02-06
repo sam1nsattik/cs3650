@@ -17,3 +17,15 @@ if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
             status = 1;
         }
     }
+
+if (strcmp(tokens[0], "pwd") == 0) { // Check if the command is 'pwd'
+        char cwd[PATH_MAX];
+        if (getcwd(cwd, sizeof(cwd)) != NULL) {
+            printf("%s\n", cwd); // Print the current working directory
+            status = 0; // Assume success as per the instructions
+        } else {
+            // Even though you're assuming success, it's good practice to handle potential errors
+            fprintf(stderr, "Error getting current working directory: %s\n", strerror(errno));
+            status = 1; // Set status to 1 to indicate an error, contrary to the assumption
+        }
+    }
