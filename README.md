@@ -29,3 +29,15 @@ if (strcmp(tokens[0], "pwd") == 0) { // Check if the command is 'pwd'
             status = 1; // Set status to 1 to indicate an error, contrary to the assumption
         }
     }
+
+if (strcmp(tokens[0], "exit") == 0) { // Check if the command is 'exit'
+        if (n_tokens == 1) {
+            exit(0); // No arguments, exit with status 0
+        } else if (n_tokens == 2) {
+            int exit_status = atoi(tokens[1]); // Convert the argument to an integer
+            exit(exit_status); // Exit with the provided status
+        } else {
+            fprintf(stderr, "exit: too many arguments\n");
+            status = 1; // Set status to 1 to indicate an error
+        }
+    }
