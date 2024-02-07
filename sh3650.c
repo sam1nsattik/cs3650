@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 		    signal(SIGINT, SIG_DFL);
 		
 		    // Execute the command
-		    if (execvp(argv[0], argv) == -1) {
+		    if (execvp(tokens[0], argv) == -1) {
 		        fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
 		        exit(EXIT_FAILURE);
 		    }
