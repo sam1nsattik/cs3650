@@ -92,7 +92,7 @@ int main(int argc, char **argv)
          }
     	}
 	char cwd[PATH_MAX];
-        if (strcmp(tokens[0], "pwd") == 0) { // Check if the command is 'pwd'
+        else if (strcmp(tokens[0], "pwd") == 0) { // Check if the command is 'pwd'
 	  if (n_tokens > 1) {
 	    fprintf(stderr, "pwd: too many arguments\n");
 	    status = 1;
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
           }
     	}
 
-	if (strcmp(tokens[0], "exit") == 0) { // Check if the command is 'exit'
+	else if (strcmp(tokens[0], "exit") == 0) { // Check if the command is 'exit'
        	 if (n_tokens == 1) {
             exit(0); // No arguments, exit with status 0
        	 } else if (n_tokens == 2) {
@@ -118,6 +118,36 @@ int main(int argc, char **argv)
             status = 1; // Set status to 1 to indicate an error
        	 }
 	}
+
+	else {
+		pid_t pid = fork();
+
+		if (pid == -1) {
+		    // Fork failed
+		    fprintf(stderr, "Fork failed: %s\n", strerror(errno));
+		    exit(EXIT_FAILURE);
+		} else if (pid == 0) {
+		    // Child process
+		    // Re-enable ^C (SIGINT)
+		    signal(SIGINT, SIG_DFL);
+		
+		    // Execute the command
+		    if (execvp(argv[0], argv) == -1) {
+		        fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
+		        exit(EXIT_FAILURE);
+		    }
+		} else {
+		    // Parent process
+		    int status;
+		    do {
+		        waitpid(pid, &status, WUNTRACED);
+		    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
+		
+		    int exit_status = WEXITSTATUS(status);
+		    // Optionally, use exit_status for something
+		}
+	}
+
     }
 
     if (interactive)            /* make things pretty */
