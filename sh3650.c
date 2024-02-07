@@ -72,6 +72,8 @@ int main(int argc, char **argv)
          */
         int n_tokens = parse(line, max_tokens, tokens, linebuf, sizeof(linebuf));
 
+	char cwd[PATH_MAX];
+
         /* replace the code below with your shell:
          */
         if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
@@ -91,7 +93,6 @@ int main(int argc, char **argv)
             status = 1;
          }
     	}
-	char cwd[PATH_MAX];
         else if (strcmp(tokens[0], "pwd") == 0) { // Check if the command is 'pwd'
 	  if (n_tokens > 1) {
 	    fprintf(stderr, "pwd: too many arguments\n");
