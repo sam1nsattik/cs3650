@@ -74,6 +74,15 @@ int main(int argc, char **argv)
 
 	char cwd[PATH_MAX];
 
+	char qbuf[16]; // Buffer to hold the exit status string
+	sprintf(qbuf, "%d", status); // Convert the status to a string
+	
+	for (int i = 0; i < n_tokens; i++) {
+	    if (strcmp(tokens[i], "$?") == 0) {
+	        tokens[i] = qbuf; // Replace "$?" with the exit status string
+	    }
+	}
+
         /* replace the code below with your shell:
          */
         if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
@@ -144,7 +153,7 @@ int main(int argc, char **argv)
 		        waitpid(pid, &status, WUNTRACED);
 		    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 		
-		    int exit_status = WEXITSTATUS(status);
+		    status = WEXITSTATUS(status);
 		    // Optionally, use exit_status for something
 		}
 	}
