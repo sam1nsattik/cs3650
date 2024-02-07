@@ -75,6 +75,12 @@ int main(int argc, char **argv)
 
 	char cwd[PATH_MAX];
 
+	for (int i = 0; i < n_tokens; i++) {
+	    if (strcmp(tokens[i], "$?") == 0) {
+	        tokens[i] = qbuf; // Replace "$?" with the exit status string
+	    }
+	}
+
         /* replace the code below with your shell:
          */
         if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
@@ -83,41 +89,50 @@ int main(int argc, char **argv)
             if (chdir(home) != 0) {
                 fprintf(stderr, "cd: %s\n", strerror(errno));
                 status = 1;
+		sprintf(qbuf, "%d", status); // Convert the status to a string
             }
        	 } else if (n_tokens == 2) { // One argument, go to specified directory
             if (chdir(tokens[1]) != 0) {
                 fprintf(stderr, "cd: %s\n", strerror(errno));
                 status = 1;
+		sprintf(qbuf, "%d", status); // Convert the status to a string
             }
          } else { // Wrong number of arguments
             fprintf(stderr, "cd: wrong number of arguments\n");
             status = 1;
+	    sprintf(qbuf, "%d", status); // Convert the status to a string
          }
     	}
         else if (strcmp(tokens[0], "pwd") == 0) { // Check if the command is 'pwd'
 	  if (n_tokens > 1) {
 	    fprintf(stderr, "pwd: too many arguments\n");
 	    status = 1;
+	    sprintf(qbuf, "%d", status); // Convert the status to a string
 	  }
           else if (getcwd(cwd, sizeof(cwd)) != NULL) {
             printf("%s\n", cwd); // Print the current working directory
             status = 0; // Assume success as per the instructions
+	    sprintf(qbuf, "%d", status); // Convert the status to a string
           } else {
             // Even though you're assuming success, it's good practice to handle potential errors
             fprintf(stderr, "Error getting current working directory: %s\n", strerror(errno));
             status = 1; // Set status to 1 to indicate an error, contrary to the assumption
+            sprintf(qbuf, "%d", status); // Convert the status to a string
           }
     	}
 
 	else if (strcmp(tokens[0], "exit") == 0) { // Check if the command is 'exit'
        	 if (n_tokens == 1) {
+            sprintf(qbuf, "%d", status); // Convert the status to a string
             exit(0); // No arguments, exit with status 0
        	 } else if (n_tokens == 2) {
             int exit_status = atoi(tokens[1]); // Convert the argument to an integer
+	    sprintf(qbuf, "%d", exit_status); // Convert the status to a string
             exit(exit_status); // Exit with the provided status
        	 } else {
             fprintf(stderr, "exit: too many arguments\n");
             status = 1; // Set status to 1 to indicate an error
+	    sprintf(qbuf, "%d", status); // Convert the status to a string
        	 }
 	}
 
@@ -127,6 +142,8 @@ int main(int argc, char **argv)
 		if (pid == -1) {
 		    // Fork failed
 		    fprintf(stderr, "Fork failed: %s\n", strerror(errno));
+		    status = 1; // Set status to 1 to indicate an error
+		    sprintf(qbuf, "%d", status); // Convert the status to a string
 		    exit(EXIT_FAILURE);
 		} else if (pid == 0) {
 		    // Child process
@@ -136,6 +153,8 @@ int main(int argc, char **argv)
 		    // Execute the command
 		    if (execvp(tokens[0], tokens) == -1) {
 		        fprintf(stderr, "%s: %s\n", tokens[0], strerror(errno));
+			status = 1; // Set status to 1 to indicate an error
+		    	sprintf(qbuf, "%d", status); // Convert the status to a string
 		        exit(EXIT_FAILURE);
 		    }
 		} else {
@@ -146,15 +165,8 @@ int main(int argc, char **argv)
 		    } while (!WIFEXITED(status) && !WIFSIGNALED(status));
 		
 		    status = WEXITSTATUS(status);
-		    // Optionally, use exit_status for something
+		    sprintf(qbuf, "%d", status); // Convert the status to a string
 		}
-	}
-
-	for (int i = 0; i < n_tokens; i++) {
-	    if (strcmp(tokens[i], "$?") == 0) {
-		sprintf(qbuf, "%d", status); // Convert the status to a string
-	        tokens[i] = qbuf; // Replace "$?" with the exit status string
-	    }
 	}
     }
 
