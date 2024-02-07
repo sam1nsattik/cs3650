@@ -28,7 +28,6 @@ int main(int argc, char **argv)
 {
     int status;
     char qbuf[16]; // Buffer to hold the exit status string
-    sprintf(qbuf, "%d", status); // Convert the status to a string
     bool interactive = isatty(STDIN_FILENO); /* see: man 3 isatty */
     FILE *fp = stdin;
     signal(SIGINT, SIG_IGN);
@@ -75,12 +74,6 @@ int main(int argc, char **argv)
         int n_tokens = parse(line, max_tokens, tokens, linebuf, sizeof(linebuf));
 
 	char cwd[PATH_MAX];
-	
-	for (int i = 0; i < n_tokens; i++) {
-	    if (strcmp(tokens[i], "$?") == 0) {
-	        tokens[i] = qbuf; // Replace "$?" with the exit status string
-	    }
-	}
 
         /* replace the code below with your shell:
          */
@@ -157,6 +150,12 @@ int main(int argc, char **argv)
 		}
 	}
 
+	for (int i = 0; i < n_tokens; i++) {
+	    if (strcmp(tokens[i], "$?") == 0) {
+		sprintf(qbuf, "%d", status); // Convert the status to a string
+	        tokens[i] = qbuf; // Replace "$?" with the exit status string
+	    }
+	}
     }
 
     if (interactive)            /* make things pretty */
