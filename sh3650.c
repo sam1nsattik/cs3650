@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 
 	else if (strcmp(tokens[0], "exit") == 0) { // Check if the command is 'exit'
        	 if (n_tokens == 1) {
-	    status = 0
+	    status = 0;
             sprintf(qbuf, "%d", status); // Convert the status to a string
             exit(0); // No arguments, exit with status 0
        	 } else if (n_tokens == 2) {
