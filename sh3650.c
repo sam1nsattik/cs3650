@@ -73,6 +73,14 @@ int main(int argc, char **argv)
          */
         int n_tokens = parse(line, max_tokens, tokens, linebuf, sizeof(linebuf));
 
+	char cwd[PATH_MAX];
+
+	for (int i = 0; i < n_tokens; i++) {
+	    if (strcmp(tokens[i], "$?") == 0) {
+	        tokens[i] = qbuf; // Replace "$?" with the exit status string
+	    }
+	}
+
 	int fd_in = -1, fd_out = -1; // File descriptors for input and output redirection
         for (int i = 0; i < n_tokens; i++) {
             if (strcmp(tokens[i], ">") == 0) {
@@ -87,6 +95,7 @@ int main(int argc, char **argv)
 			    dup2(fd_out, STDOUT_FILENO);
 			    close(fd_out);
 			    status = 0;
+			    sprintf(qbuf, "%d", status); // Convert the status to a string
 			    tokens[i] = NULL; // Nullify ">" and the filename for execvp    
 		    }
                 }
@@ -103,20 +112,13 @@ int main(int argc, char **argv)
 			    dup2(fd_in, STDIN_FILENO);
                     	    close(fd_in);
 			    status = 0;
+			    sprintf(qbuf, "%d", status); // Convert the status to a string
                     	    tokens[i] = NULL; // Nullify "<" and the filename for execvp
 		    }
                 }
                 break; // Only handle the first occurrence
             }
         }
-
-	char cwd[PATH_MAX];
-
-	for (int i = 0; i < n_tokens; i++) {
-	    if (strcmp(tokens[i], "$?") == 0) {
-	        tokens[i] = qbuf; // Replace "$?" with the exit status string
-	    }
-	}
 
         /* replace the code below with your shell:
          */
