@@ -73,6 +73,43 @@ int main(int argc, char **argv)
          */
         int n_tokens = parse(line, max_tokens, tokens, linebuf, sizeof(linebuf));
 
+	int fd_in = -1, fd_out = -1; // File descriptors for input and output redirection
+        for (int i = 0; i < n_tokens; i++) {
+            if (strcmp(tokens[i], ">") == 0) {
+                if (i + 1 < n_tokens) { // There's a filename after ">"
+                    fd_out = open(tokens[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+                    if (fd_out == -1) {
+                        fprintf(stderr, "Failed to open file %s for writing: %s\n", tokens[i + 1], strerror(errno));
+                        status = 1;
+			sprintf(qbuf, "%d", status); // Convert the status to a string
+                    }
+                    else {
+			    dup2(fd_out, STDOUT_FILENO);
+			    close(fd_out);
+			    status = 0;
+			    tokens[i] = NULL; // Nullify ">" and the filename for execvp    
+		    }
+                }
+                break; // Only handle the first occurrence
+            }
+            else if (strcmp(tokens[i], "<") == 0) {
+                if (i + 1 < n_tokens) { // There's a filename after "<"
+                    fd_in = open(tokens[i + 1], O_RDONLY);
+                    if (fd_in == -1) {
+                        fprintf(stderr, "Failed to open file %s for reading: %s\n", tokens[i + 1], strerror(errno));
+                        exit(EXIT_FAILURE);
+                    }
+		    else {
+			    dup2(fd_in, STDIN_FILENO);
+                    	    close(fd_in);
+			    status = 0;
+                    	    tokens[i] = NULL; // Nullify "<" and the filename for execvp
+		    }
+                }
+                break; // Only handle the first occurrence
+            }
+        }
+
 	char cwd[PATH_MAX];
 
 	for (int i = 0; i < n_tokens; i++) {
@@ -123,6 +160,7 @@ int main(int argc, char **argv)
 
 	else if (strcmp(tokens[0], "exit") == 0) { // Check if the command is 'exit'
        	 if (n_tokens == 1) {
+	    status = 0
             sprintf(qbuf, "%d", status); // Convert the status to a string
             exit(0); // No arguments, exit with status 0
        	 } else if (n_tokens == 2) {
