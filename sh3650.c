@@ -26,7 +26,7 @@
 
 int main(int argc, char **argv)
 {
-    int status = 0;
+    int status;
     char qbuf[16]; // Buffer to hold the exit status string
     sprintf(qbuf, "%d", status); // Convert the status to a string
     bool interactive = isatty(STDIN_FILENO); /* see: man 3 isatty */
