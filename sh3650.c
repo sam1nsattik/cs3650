@@ -156,10 +156,6 @@ int main(int argc, char **argv)
 		    // Child process
 		    // Re-enable ^C (SIGINT)
 		    signal(SIGINT, SIG_DFL);
-
-			int orig_stdout_fd = dup(STDOUT_FILENO);
-			int orig_stdin_fd = dup(STDIN_FILENO);
-			int fd_in = -1, fd_out = -1; 
 			
 			for (int i = 0; i < n_tokens; i++) {
 				if (strcmp(tokens[i], ">") == 0) {
