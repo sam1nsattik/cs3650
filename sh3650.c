@@ -101,7 +101,10 @@ int main(int argc, char **argv)
 	}
         /* replace the code below with your shell:
          */
-        if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
+	if (n_tokens == 0) {
+	    continue;
+	}
+        else if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
        	 if (n_tokens == 1) { // No arguments, go to HOME
             char *home = getenv("HOME");
             if (chdir(home) != 0) {
