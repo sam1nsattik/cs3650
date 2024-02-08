@@ -83,6 +83,7 @@ int main(int argc, char **argv)
 		if (!interactive) {
 		    // If not already in interactive mode and the line is empty, switch to interactive
 		    interactive = true;
+		    fp = stdin
 		    continue; // Skip the rest of the loop and go back to printing the prompt
 		}
 	}
