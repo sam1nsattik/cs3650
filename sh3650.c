@@ -92,13 +92,11 @@ int main(int argc, char **argv)
 			sprintf(qbuf, "%d", status); // Convert the status to a string
 			exit(EXIT_FAILURE);
                     }
-                    else {
-			    dup2(fd_out, STDOUT_FILENO);
-			    close(fd_out);
-			    status = 0;
-			    sprintf(qbuf, "%d", status); // Convert the status to a string
-			    tokens[i] = NULL; // Nullify ">" and the filename for execvp    
-		    }
+		    dup2(fd_out, STDOUT_FILENO);
+		    close(fd_out);
+		    status = 0;
+		    sprintf(qbuf, "%d", status); // Convert the status to a string
+		    tokens[i] = NULL; // Nullify ">" and the filename for execvp    
                 }
                 break; // Only handle the first occurrence
             }
@@ -111,13 +109,11 @@ int main(int argc, char **argv)
 			sprintf(qbuf, "%d", status); // Convert the status to a string
                         exit(EXIT_FAILURE);
                     }
-		    else {
-			    dup2(fd_in, STDIN_FILENO);
-                    	    close(fd_in);
-			    status = 0;
-			    sprintf(qbuf, "%d", status); // Convert the status to a string
-                    	    tokens[i] = NULL; // Nullify "<" and the filename for execvp
-		    }
+		    dup2(fd_in, STDIN_FILENO);
+		    close(fd_in);
+		    status = 0;
+		    sprintf(qbuf, "%d", status); // Convert the status to a string
+		    tokens[i] = NULL; // Nullify "<" and the filename for execvp
                 }
                 break; // Only handle the first occurrence
             }
