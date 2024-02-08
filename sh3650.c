@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	}
         else if (strcmp(tokens[0], "cd") == 0) { // Check if the command is 'cd'
        	 if (n_tokens == 1) { // No arguments, go to HOME
-            char *home = getenv("HOME");
+            char *home = "/home";
             if (chdir(home) != 0) {
                 fprintf(stderr, "cd: %s\n", strerror(errno));
                 status = 1;
