@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 	else if (containsSymbol(tokens, n_tokens, ">") || containsSymbol(tokens, n_tokens, "<")) {
 		
 		int orig_stdout_fd = dup(STDOUT_FILENO);
-		int orig_stdin_fd = dup(STDOUT_FILENO);
+		int orig_stdin_fd = dup(STDIN_FILENO);
 		int fd_in = -1, fd_out = -1; // File descriptors for input and output redirection
 		
 	        for (int i = 0; i < n_tokens; i++) {
@@ -186,8 +186,8 @@ int main(int argc, char **argv)
 			    sprintf(qbuf, "%d", status); // Convert the status to a string
 			    tokens[i] = NULL; // Nullify "<" and the filename for execvp
 			    // Restore the original stdout
-			    dup2(orig_stdout_fd, STDOUT_FILENO);
-			    close(orig_stdout_fd);
+			    dup2(orig_stdin_fd, STDIN_FILENO);
+			    close(orig_stdin_fd);
 	                }
 	                break; // Only handle the first occurrence
 	            }
