@@ -88,6 +88,46 @@ int main(int argc, char **argv)
 	        tokens[i] = qbuf; // Replace "$?" with the exit status string
 	    }
 	}
+	int orig_stdout_fd = dup(STDOUT_FILENO);
+	int orig_stdin_fd = dup(STDIN_FILENO);
+	int fd_in = -1, fd_out = -1; // File descriptors for input and output redirection
+	
+	for (int i = 0; i < n_tokens; i++) {
+	    if (strcmp(tokens[i], ">") == 0) {
+		if (i + 1 < n_tokens) { // There's a filename after ">"
+		    fd_out = open(tokens[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		    if (fd_out == -1) {
+			fprintf(stderr, "Failed to open file %s for writing: %s\n", tokens[i + 1], strerror(errno));
+			status = 1;
+			sprintf(qbuf, "%d", status); // Convert the status to a string
+			exit(EXIT_FAILURE);
+		    }
+		    dup2(fd_out, STDOUT_FILENO);
+		    close(fd_out);
+		    status = 0;
+		    sprintf(qbuf, "%d", status); // Convert the status to a string
+		    tokens[i] = NULL; // Nullify ">" and the filename for execvp
+		}
+		break; // Only handle the first occurrence
+	    }
+	    else if (strcmp(tokens[i], "<") == 0) {
+		if (i + 1 < n_tokens) { // There's a filename after "<"
+		    fd_in = open(tokens[i + 1], O_RDONLY);
+		    if (fd_in == -1) {
+			fprintf(stderr, "Failed to open file %s for reading: %s\n", tokens[i + 1], strerror(errno));
+			status = 1;
+			sprintf(qbuf, "%d", status); // Convert the status to a string
+			exit(EXIT_FAILURE);
+		    }
+		    dup2(fd_in, STDIN_FILENO);
+		    close(fd_in);
+		    status = 0;
+		    sprintf(qbuf, "%d", status); // Convert the status to a string
+		    tokens[i] = NULL; // Nullify "<" and the filename for execvp
+		}
+		break; // Only handle the first occurrence
+	    }
+	}
 
         /* replace the code below with your shell:
          */
@@ -143,55 +183,6 @@ int main(int argc, char **argv)
             status = 1; // Set status to 1 to indicate an error
 	    sprintf(qbuf, "%d", status); // Convert the status to a string
        	 }
-	}
-	else if (containsSymbol(tokens, n_tokens, ">") || containsSymbol(tokens, n_tokens, "<")) {
-		
-		int orig_stdout_fd = dup(STDOUT_FILENO);
-		int orig_stdin_fd = dup(STDIN_FILENO);
-		int fd_in = -1, fd_out = -1; // File descriptors for input and output redirection
-		
-	        for (int i = 0; i < n_tokens; i++) {
-	            if (strcmp(tokens[i], ">") == 0) {
-	                if (i + 1 < n_tokens) { // There's a filename after ">"
-	                    fd_out = open(tokens[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	                    if (fd_out == -1) {
-	                        fprintf(stderr, "Failed to open file %s for writing: %s\n", tokens[i + 1], strerror(errno));
-	                        status = 1;
-				sprintf(qbuf, "%d", status); // Convert the status to a string
-				exit(EXIT_FAILURE);
-	                    }
-			    dup2(fd_out, STDOUT_FILENO);
-			    close(fd_out);
-			    status = 0;
-			    sprintf(qbuf, "%d", status); // Convert the status to a string
-			    tokens[i] = NULL; // Nullify ">" and the filename for execvp
-			    // Restore the original stdout
-			    dup2(orig_stdout_fd, STDOUT_FILENO);
-			    close(orig_stdout_fd);
-	                }
-	                break; // Only handle the first occurrence
-	            }
-	            else if (strcmp(tokens[i], "<") == 0) {
-	                if (i + 1 < n_tokens) { // There's a filename after "<"
-	                    fd_in = open(tokens[i + 1], O_RDONLY);
-	                    if (fd_in == -1) {
-	                        fprintf(stderr, "Failed to open file %s for reading: %s\n", tokens[i + 1], strerror(errno));
-				status = 1;
-				sprintf(qbuf, "%d", status); // Convert the status to a string
-	                        exit(EXIT_FAILURE);
-	                    }
-			    dup2(fd_in, STDIN_FILENO);
-			    close(fd_in);
-			    status = 0;
-			    sprintf(qbuf, "%d", status); // Convert the status to a string
-			    tokens[i] = NULL; // Nullify "<" and the filename for execvp
-			    // Restore the original stdout
-			    dup2(orig_stdin_fd, STDIN_FILENO);
-			    close(orig_stdin_fd);
-	                }
-	                break; // Only handle the first occurrence
-	            }
-	        }
 	}
 	else {
 		pid_t pid = fork();
