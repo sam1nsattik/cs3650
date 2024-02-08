@@ -90,6 +90,7 @@ int main(int argc, char **argv)
                         fprintf(stderr, "Failed to open file %s for writing: %s\n", tokens[i + 1], strerror(errno));
                         status = 1;
 			sprintf(qbuf, "%d", status); // Convert the status to a string
+			exit(EXIT_FAILURE);
                     }
                     else {
 			    dup2(fd_out, STDOUT_FILENO);
@@ -106,6 +107,8 @@ int main(int argc, char **argv)
                     fd_in = open(tokens[i + 1], O_RDONLY);
                     if (fd_in == -1) {
                         fprintf(stderr, "Failed to open file %s for reading: %s\n", tokens[i + 1], strerror(errno));
+			status = 1;
+			sprintf(qbuf, "%d", status); // Convert the status to a string
                         exit(EXIT_FAILURE);
                     }
 		    else {
