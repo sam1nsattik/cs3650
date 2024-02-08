@@ -77,6 +77,16 @@ int main(int argc, char **argv)
         if (!fgets(line, sizeof(line), fp))
             break;
 
+	// Trim leading and trailing whitespace from the line
+	char *trimmed_line = strtok(line, "\n");
+	if (trimmed_line == NULL || strlen(trimmed_line) == 0) { // Check for an empty line
+		if (!interactive) {
+		    // If not already in interactive mode and the line is empty, switch to interactive
+		    interactive = true;
+		    continue; // Skip the rest of the loop and go back to printing the prompt
+		}
+	}
+
         /* read a line, tokenize it, and print it out
          */
         int n_tokens = parse(line, max_tokens, tokens, linebuf, sizeof(linebuf));
