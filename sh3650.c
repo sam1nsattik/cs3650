@@ -145,7 +145,11 @@ int main(int argc, char **argv)
        	 }
 	}
 	else if (containsSymbol(tokens, n_tokens, ">") || containsSymbol(tokens, n_tokens, "<")) {
+		
+		int orig_stdout_fd = dup(STDOUT_FILENO);
+		int orig_stdin_fd = dup(STDOUT_FILENO);
 		int fd_in = -1, fd_out = -1; // File descriptors for input and output redirection
+		
 	        for (int i = 0; i < n_tokens; i++) {
 	            if (strcmp(tokens[i], ">") == 0) {
 	                if (i + 1 < n_tokens) { // There's a filename after ">"
@@ -160,7 +164,10 @@ int main(int argc, char **argv)
 			    close(fd_out);
 			    status = 0;
 			    sprintf(qbuf, "%d", status); // Convert the status to a string
-			    tokens[i] = NULL; // Nullify ">" and the filename for execvp    
+			    tokens[i] = NULL; // Nullify ">" and the filename for execvp
+			    // Restore the original stdout
+			    dup2(orig_stdout_fd, STDOUT_FILENO);
+			    close(orig_stdout_fd);
 	                }
 	                break; // Only handle the first occurrence
 	            }
@@ -178,6 +185,9 @@ int main(int argc, char **argv)
 			    status = 0;
 			    sprintf(qbuf, "%d", status); // Convert the status to a string
 			    tokens[i] = NULL; // Nullify "<" and the filename for execvp
+			    // Restore the original stdout
+			    dup2(orig_stdout_fd, STDOUT_FILENO);
+			    close(orig_stdout_fd);
 	                }
 	                break; // Only handle the first occurrence
 	            }
