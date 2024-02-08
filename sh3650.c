@@ -156,7 +156,8 @@ int main(int argc, char **argv)
 		    // Child process
 		    // Re-enable ^C (SIGINT)
 		    signal(SIGINT, SIG_DFL);
-		    int fd_in = -1, fd_out = -1;
+		    int fd_in = -1; 
+		    int fd_out = -1;
 			for (int i = 0; i < n_tokens; i++) {
 				if (strcmp(tokens[i], ">") == 0) {
 				if (i + 1 < n_tokens) { // There's a filename after ">"
